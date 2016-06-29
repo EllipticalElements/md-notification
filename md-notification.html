@@ -1,0 +1,196 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<dom-module id="md-notification">
+    <style>
+        :host {
+            position: relative;
+            cursor:pointer;
+        }
+
+        :host [icon-notification] {
+            font-size: 24px;
+            color: #fff;
+        }
+
+        :host .count-container {
+            border-radius: 50%;
+            color: #fff;
+            background: #BA68C8;
+            font-size: 12px;
+            display: inline-block;
+            padding: 4px;
+            position: absolute;
+            top: -2px;
+            left: 14px;
+            visibility: hidden;
+        }
+
+        :host .count-container.visible {
+            visibility: visible;
+        }
+
+        :host .count {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-justify-content: flex;
+            justify-content: center;
+            -webkit-align-items: center;
+            align-items: center;
+            height: 12px;
+            width: 12px;
+        }
+    </style>
+    <template>
+        <span class="icon-notifications" icon-notification id="icon"></span>
+        <div class="count-container" id="countContainer">
+            <span class="count" id="count"></span>
+        </div>
+    </template>
+</dom-module>
+<script>
+
+    Polymer({
+
+        is: 'md-notification',
+
+        behaviors: [],
+
+        properties: {
+            count:{
+                type:Number,
+                value:0
+            },
+            color: {
+                type: String,
+                value: null
+            },
+            iconColor: {
+                type: String,
+                value: null
+            },
+            background: {
+                type: String,
+                value: null
+            },
+            padding:{
+                type:String,
+                value:null
+            },
+            iconSize:{
+                type:String,
+                value:null
+            },
+            fontSize:{
+                type:String,
+                value:null
+            },
+            top:{
+                type:String,
+                value:null
+            },
+            left:{
+                type:String,
+                value:null
+            },
+            size:{
+                type:String,
+                value:null
+            },
+            storageKey:{
+                type:String,
+                value:null
+            }
+        },
+
+        ready: function () {
+            this._setIcon();
+            this._setContainer();
+            this._setCount();
+        },
+
+        _setIcon:function(){
+            if(this.iconColor) this.$.icon.style.color=this.iconColor;
+        },
+
+        _setContainer:function(){
+            if(this.color) this.$.countContainer.style.color=this.color;
+            if(this.background) this.$.countContainer.style.background=this.background;
+            if(this.fontSize) this.$.countContainer.style.fontSize=this.fontSize;
+            if(this.padding) this.$.countContainer.style.padding=this.padding;
+            if(this.top) this.$.countContainer.style.top=this.top;
+            if(this.left) this.$.countContainer.style.left=this.left;
+        },
+
+        _setCount:function(){
+            if(this.size) {
+                this.$.count.style.width=this.size;
+                this.$.count.style.height=this.size;
+            }
+            if(this.count) this._setCountLabel(this.count);
+            else{
+                if(this.storageKey){
+                    var _count=this._getStorageCount();
+                    if(_count) {
+                        this.count=_count;
+                        this._setCountLabel(_count);
+                    }
+                }
+            }
+        },
+
+        _setCountLabel:function(val){
+            this.$.count.innerHTML=val;
+            this.$.countContainer.classList.add('visible');
+            this._setStorageCount(val);
+        },
+
+        _resetCountLabel:function(){
+            this.count=0;
+            this.$.count.innerHTML='';
+            this.$.countContainer.classList.remove('visible');
+            this._setStorageCount(0);
+        },
+
+        _getStorageCount:function(){
+            var item=null;
+            var key=this.storageKey;
+            item=localStorage.getItem(key);
+            if(item) item=parseInt(item);
+            return item;
+        },
+
+        _setStorageCount:function(val){
+            var key=this.storageKey;
+            if(key){
+                val=val.toString();
+                localStorage.setItem(key,val);
+            }
+        },
+
+        increment:function(){
+            var count=this.count;
+            count+=1;
+            this.count=count;
+            this._setCountLabel(count);
+        },
+
+        decrement:function(){
+            var count=this.count;
+            count-=1;
+            if(count <0) count=0;
+            this.count=count;
+            if(count) this._setCountLabel(count);
+            else this._resetCountLabel();
+        },
+
+        setValue:function(val){
+            this.count=val;
+            this._setCountLabel(val);
+        },
+
+        clear:function(){
+            this._resetCountLabel();
+        }
+    });
+
+</script>
